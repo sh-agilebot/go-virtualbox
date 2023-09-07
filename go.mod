@@ -1,4 +1,4 @@
-module github.com/terra-farm/go-virtualbox
+module github.com/kokororin/go-virtualbox
 
 go 1.19
 

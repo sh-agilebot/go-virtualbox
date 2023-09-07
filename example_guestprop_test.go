@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	virtualbox "github.com/terra-farm/go-virtualbox"
+	virtualbox "github.com/kokororin/go-virtualbox"
 )
 
 var VM = "MyVM"

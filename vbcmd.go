@@ -88,6 +88,8 @@ func (vbcmd command) run(args ...string) (string, string, error) {
 		if ee, ok := err.(*exec.Error); ok && ee == exec.ErrNotFound {
 			err = ErrCommandNotFound
 		}
+		Debug("stderr: %v", stderr.String())
 	}
+
 	return stdout.String(), stderr.String(), err
 }

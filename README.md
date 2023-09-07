@@ -26,10 +26,10 @@ no compatibility guarantee between newer and older versions of Virtualbox.
 
 | Project | Status | Notes |
 |---------|--------|-------|
-| [Github Actions](https://github.com/features/actions) | [![Continuous Integration](https://github.com/terra-farm/go-virtualbox/workflows/Continuous%20Integration/badge.svg)](https://github.com/terra-farm/go-virtualbox/actions) | |
-| [Go Report Card](https://goreportcard.com/) | [![Go Report Card](https://goreportcard.com/badge/github.com/terra-farm/go-virtualbox?style=flat-square)](https://goreportcard.com/report/github.com/terra-farm/go-virtualbox) | scan  code with `gofmt`, `go vet`, `gocyclo`, `golint`, `ineffassign`, `license` and `misspell`. |
-| [GoDoc](http://godoc.org) | [![Go Doc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](http://godoc.org/github.com/terra-farm/go-virtualbox) | |
-| Release | [![Release](https://img.shields.io/github/release/terra-farm/go-virtualbox.svg?style=flat-square)](https://github.com/terra-farm/go-virtualbox/releases/latest) | |
+| [Github Actions](https://github.com/features/actions) | [![Continuous Integration](https://github.com/kokororin/go-virtualbox/workflows/Continuous%20Integration/badge.svg)](https://github.com/kokororin/go-virtualbox/actions) | |
+| [Go Report Card](https://goreportcard.com/) | [![Go Report Card](https://goreportcard.com/badge/github.com/kokororin/go-virtualbox?style=flat-square)](https://goreportcard.com/report/github.com/kokororin/go-virtualbox) | scan  code with `gofmt`, `go vet`, `gocyclo`, `golint`, `ineffassign`, `license` and `misspell`. |
+| [GoDoc](http://godoc.org) | [![Go Doc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](http://godoc.org/github.com/kokororin/go-virtualbox) | |
+| Release | [![Release](https://img.shields.io/github/release/terra-farm/go-virtualbox.svg?style=flat-square)](https://github.com/kokororin/go-virtualbox/releases/latest) | |
 
 ## Usage
 
@@ -42,7 +42,7 @@ The part of the library that manages guest properties can run both from the Host
     val, err := GetGuestProperty(VM, "test_key")
 ```
 
-See [GoDoc](https://godoc.org/github.com/terra-farm/go-virtualbox) for full details.
+See [GoDoc](https://godoc.org/github.com/kokororin/go-virtualbox) for full details.
 
 ### Commands
 
@@ -54,7 +54,7 @@ The [vbhostd](./cmd/vbhostd/README.md) commands waits on the `vbhostd/*` guest-p
 
 ### Documentation
 
-For the released version, see [GoDoc:terra-farm/go-virtualbox](https://godoc.org/github.com/terra-farm/go-virtualbox). To see the local documentation, run `godoc -http=:6060 &` and then `open http://localhost:6060/pkg/github.com/terra-farm/go-virtualbox/`.
+For the released version, see [GoDoc:terra-farm/go-virtualbox](https://godoc.org/github.com/kokororin/go-virtualbox). To see the local documentation, run `godoc -http=:6060 &` and then `open http://localhost:6060/pkg/github.com/kokororin/go-virtualbox/`.
 
 ## Building
 

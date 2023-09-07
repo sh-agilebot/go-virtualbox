@@ -143,7 +143,7 @@ func (m *Manager) ListMachines(ctx context.Context) ([]*Machine, error) {
 		if res == nil {
 			continue
 		}
-		m, err := m.Machine(ctx, res[1])
+		m, err := m.Machine(ctx, res[2])
 		if err != nil {
 			// Sometimes a VM is listed but not available, so we need to handle this.
 			if errors.Is(err, ErrMachineNotExist) {
@@ -162,7 +162,7 @@ func (m *Manager) ListMachines(ctx context.Context) ([]*Machine, error) {
 
 // ModifyMachine modifies the data of the machine
 func (m *Manager) ModifyMachine(ctx context.Context, vm *Machine) error {
-	args := []string{"modifyvm", vm.Name,
+	args := []string{"modifyvm", vm.UUID,
 		"--firmware", vm.Firmware,
 		"--bioslogofadein", "off",
 		"--bioslogofadeout", "off",
@@ -317,10 +317,7 @@ func New() *Machine {
 
 // Refresh reloads the machine information.
 func (m *Machine) Refresh() error {
-	id := m.Name
-	if id == "" {
-		id = m.UUID
-	}
+	id := m.UUID
 	mm, err := GetMachine(id)
 	if err != nil {
 		return err
@@ -336,7 +333,7 @@ func (m *Machine) Start() error {
 
 // DisconnectSerialPort sets given serial port to disconnected.
 func (m *Machine) DisconnectSerialPort(portNumber int) error {
-	_, _, err := Manage().run("modifyvm", m.Name, fmt.Sprintf("--uartmode%d", portNumber), "disconnected")
+	_, _, err := Manage().run("modifyvm", m.UUID, fmt.Sprintf("--uartmode%d", portNumber), "disconnected")
 	return err
 }
 
@@ -350,7 +347,7 @@ func (m *Machine) Save() error {
 	case Poweroff, Aborted, Saved:
 		return nil
 	}
-	_, _, err := Manage().run("controlvm", m.Name, "savestate")
+	_, _, err := Manage().run("controlvm", m.UUID, "savestate")
 	return err
 }
 
@@ -360,7 +357,7 @@ func (m *Machine) Pause() error {
 	case Paused, Poweroff, Aborted, Saved:
 		return nil
 	}
-	_, _, err := Manage().run("controlvm", m.Name, "pause")
+	_, _, err := Manage().run("controlvm", m.UUID, "pause")
 	return err
 }
 
@@ -376,7 +373,7 @@ func (m *Machine) Stop() error {
 	}
 
 	for m.State != Poweroff { // busy wait until the machine is stopped
-		if _, _, err := Manage().run("controlvm", m.Name, "acpipowerbutton"); err != nil {
+		if _, _, err := Manage().run("controlvm", m.UUID, "acpipowerbutton"); err != nil {
 			return err
 		}
 		time.Sleep(1 * time.Second)
@@ -393,7 +390,7 @@ func (m *Machine) Poweroff() error {
 	case Poweroff, Aborted, Saved:
 		return nil
 	}
-	_, _, err := Manage().run("controlvm", m.Name, "poweroff")
+	_, _, err := Manage().run("controlvm", m.UUID, "poweroff")
 	return err
 }
 
@@ -419,7 +416,7 @@ func (m *Machine) Reset() error {
 			return err
 		}
 	}
-	_, _, err := Manage().run("controlvm", m.Name, "reset")
+	_, _, err := Manage().run("controlvm", m.UUID, "reset")
 	return err
 }
 
@@ -428,7 +425,7 @@ func (m *Machine) Delete() error {
 	if err := m.Poweroff(); err != nil {
 		return err
 	}
-	_, _, err := Manage().run("unregistervm", m.Name, "--delete")
+	_, _, err := Manage().run("unregistervm", m.UUID, "--delete")
 	return err
 }
 
@@ -484,22 +481,35 @@ func (m *Machine) Modify() error {
 	return defaultManager.ModifyMachine(context.Background(), m)
 }
 
+// Rename rename the name of the machine.
+func (m *Machine) Rename(name string) error {
+	args := []string{"modifyvm", m.UUID,
+		"--name", name,
+	}
+	_, _, err := Manage().run(args...)
+	if err != nil {
+		return err
+	}
+	err = m.Refresh()
+	return err
+}
+
 // AddNATPF adds a NAT port forarding rule to the n-th NIC with the given name.
 func (m *Machine) AddNATPF(n int, name string, rule PFRule) error {
-	_, _, err := Manage().run("controlvm", m.Name, fmt.Sprintf("natpf%d", n),
+	_, _, err := Manage().run("controlvm", m.UUID, fmt.Sprintf("natpf%d", n),
 		fmt.Sprintf("%s,%s", name, rule.Format()))
 	return err
 }
 
 // DelNATPF deletes the NAT port forwarding rule with the given name from the n-th NIC.
 func (m *Machine) DelNATPF(n int, name string) error {
-	_, _, err := Manage().run("controlvm", m.Name, fmt.Sprintf("natpf%d", n), "delete", name)
+	_, _, err := Manage().run("controlvm", m.UUID, fmt.Sprintf("natpf%d", n), "delete", name)
 	return err
 }
 
 // SetNIC set the n-th NIC.
 func (m *Machine) SetNIC(n int, nic NIC) error {
-	args := []string{"modifyvm", m.Name,
+	args := []string{"modifyvm", m.UUID,
 		fmt.Sprintf("--nic%d", n), string(nic.Network),
 		fmt.Sprintf("--nictype%d", n), string(nic.Hardware),
 		fmt.Sprintf("--cableconnected%d", n), "on",
@@ -516,7 +526,7 @@ func (m *Machine) SetNIC(n int, nic NIC) error {
 
 // AddStorageCtl adds a storage controller with the given name.
 func (m *Machine) AddStorageCtl(name string, ctl StorageController) error {
-	args := []string{"storagectl", m.Name, "--name", name}
+	args := []string{"storagectl", m.UUID, "--name", name}
 	if ctl.SysBus != "" {
 		args = append(args, "--add", string(ctl.SysBus))
 	}
@@ -535,13 +545,13 @@ func (m *Machine) AddStorageCtl(name string, ctl StorageController) error {
 
 // DelStorageCtl deletes the storage controller with the given name.
 func (m *Machine) DelStorageCtl(name string) error {
-	_, _, err := Manage().run("storagectl", m.Name, "--name", name, "--remove")
+	_, _, err := Manage().run("storagectl", m.UUID, "--name", name, "--remove")
 	return err
 }
 
 // AttachStorage attaches a storage medium to the named storage controller.
 func (m *Machine) AttachStorage(ctlName string, medium StorageMedium) error {
-	_, _, err := Manage().run("storageattach", m.Name, "--storagectl", ctlName,
+	_, _, err := Manage().run("storageattach", m.UUID, "--storagectl", ctlName,
 		"--port", fmt.Sprintf("%d", medium.Port),
 		"--device", fmt.Sprintf("%d", medium.Device),
 		"--type", string(medium.DriveType),
@@ -552,13 +562,13 @@ func (m *Machine) AttachStorage(ctlName string, medium StorageMedium) error {
 
 // SetExtraData attaches custom string to the VM.
 func (m *Machine) SetExtraData(key, val string) error {
-	_, _, err := Manage().run("setextradata", m.Name, key, val)
+	_, _, err := Manage().run("setextradata", m.UUID, key, val)
 	return err
 }
 
 // GetExtraData retrieves custom string from the VM.
 func (m *Machine) GetExtraData(key string) (*string, error) {
-	value, _, err := Manage().run("getextradata", m.Name, key)
+	value, _, err := Manage().run("getextradata", m.UUID, key)
 	if err != nil {
 		return nil, err
 	}
@@ -574,7 +584,7 @@ func (m *Machine) GetExtraData(key string) (*string, error) {
 
 // DeleteExtraData removes custom string from the VM.
 func (m *Machine) DeleteExtraData(key string) error {
-	_, _, err := Manage().run("setextradata", m.Name, key)
+	_, _, err := Manage().run("setextradata", m.UUID, key)
 	return err
 }
 
