@@ -44,10 +44,11 @@ func Manage() Command {
 }
 
 func lookupVBoxProgram(vbprog string) (string, error) {
-
 	if runtime.GOOS == osWindows {
-		if p := os.Getenv("VBOX_INSTALL_PATH"); p != "" {
-			vbprog = filepath.Join(p, vbprog+".exe")
+		if p1 := os.Getenv("VBOX_INSTALL_PATH"); p1 != "" {
+			vbprog = filepath.Join(p1, vbprog+".exe")
+		} else if p2 := os.Getenv("VBOX_MSI_INSTALL_PATH"); p2 != "" {
+			vbprog = filepath.Join(p2, vbprog+".exe")
 		} else {
 			vbprog = filepath.Join("C:\\", "Program Files", "Oracle", "VirtualBox", vbprog+".exe")
 		}

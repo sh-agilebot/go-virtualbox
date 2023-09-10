@@ -23,7 +23,7 @@ type MachineManager interface {
 	// CreateMachine based on the provided information
 	CreateMachine(context.Context, *Machine) error
 
-	// Start the machine with the given name
+	// StartMachine Start the machine with the given name
 	StartMachine(context.Context, string) error
 
 	// DeleteMachine deletes a machine by its name or UUID
