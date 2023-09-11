@@ -9,6 +9,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/kokororin/go-virtualbox"
 )
 
 var (

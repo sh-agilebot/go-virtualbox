@@ -1,6 +1,7 @@
 package virtualbox
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -13,9 +14,9 @@ const (
 )
 
 // ImportOV imports ova or ovf from the given path
-func ImportOV(path string, name string, options []ImportOption) error {
+func ImportOV(path string, name string, options []ImportOption, vsys uint) error {
 	args := []string{"import", path,
-		"--vsys", "0",
+		"--vsys", fmt.Sprintf("%d", vsys),
 		"--vmname", name,
 	}
 	opts := make([]string, 0)
