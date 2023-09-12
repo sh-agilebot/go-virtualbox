@@ -15,7 +15,7 @@ import (
 // by either its UUID or name.
 func (m *Manager) Machine(ctx context.Context, id string) (*Machine, error) {
 	m.log.Printf("getting information for %q", id)
-	// There is a strage behavior where running multiple instances of
+	// There is a strange behavior where running multiple instances of
 	// 'VBoxManage showvminfo' on same VM simultaneously can return an error of
 	// 'object is not ready (E_ACCESSDENIED)', so we sequential the operation with a mutex.
 	// Note if you are running multiple process of go-virtualbox or 'showvminfo'

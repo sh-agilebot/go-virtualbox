@@ -3,6 +3,7 @@ package virtualbox
 import (
 	"context"
 	"net"
+	"os"
 )
 
 // ParseIPv4Mask parses IPv4 netmask written in IP form (e.g. 255.255.255.0).
@@ -22,4 +23,15 @@ func ParseIPv4Mask(s string) net.IPMask {
 func Run(_ context.Context, args ...string) (string, string, error) {
 	// TODO: Convert the function so you can pass in the context.
 	return Manage().run(args...)
+}
+
+func isFileExists(name string) bool {
+	if name == "" {
+		return false
+	}
+
+	if fi, err := os.Stat(name); err == nil {
+		return !fi.IsDir()
+	}
+	return false
 }

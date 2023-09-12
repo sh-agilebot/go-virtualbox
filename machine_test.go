@@ -3,6 +3,7 @@ package virtualbox
 import (
 	"context"
 	"errors"
+	"path/filepath"
 	"testing"
 
 	"github.com/go-test/deep"
@@ -16,7 +17,7 @@ var (
 		State:    Saved,
 		CPUs:     1,
 		Memory:   1024, VRAM: 8, CfgFile: "/Users/fix/VirtualBox VMs/go-virtualbox/go-virtualbox.vbox",
-		BaseFolder: "/Users/fix/VirtualBox VMs/go-virtualbox", OSType: "", Flag: 0, BootOrder: []string{},
+		BaseFolder: filepath.Clean("/Users/fix/VirtualBox VMs/go-virtualbox"), OSType: "", Flag: 0, BootOrder: []string{},
 		NICs: []NIC{
 			{Network: "nat", Hardware: "82540EM", HostInterface: "", MacAddr: "080027EE1DF7"},
 		},
@@ -28,7 +29,7 @@ var (
 		State:    Saved,
 		CPUs:     1,
 		Memory:   1024, VRAM: 8, CfgFile: "/Users/fix/VirtualBox VMs/go-virtualbox/go-virtualbox.vbox",
-		BaseFolder: "/Users/fix/VirtualBox VMs/go-virtualbox", OSType: "", Flag: 0, BootOrder: []string{},
+		BaseFolder: filepath.Clean("/Users/fix/VirtualBox VMs/go-virtualbox"), OSType: "", Flag: 0, BootOrder: []string{},
 		NICs: []NIC{
 			{Network: "nat", Hardware: "82540EM", HostInterface: "", MacAddr: "080027EE1DF7"},
 		},
@@ -41,8 +42,8 @@ func TestMachine(t *testing.T) {
 		want *Machine
 		err  error
 	}{
-		"by name": {
-			in:   "Ubuntu",
+		"by uuid": {
+			in:   "37f5d336-bf07-48dd-947c-37e6a56420a7",
 			want: testUbuntuMachine,
 			err:  nil,
 		},

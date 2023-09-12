@@ -18,6 +18,7 @@ var (
 	reVMInfoLine      = regexp.MustCompile(`(?:"(.+)"|(.+))=(?:"(.*)"|(.*))`)
 	reColonLine       = regexp.MustCompile(`(.+):\s+(.*)`)
 	reMachineNotFound = regexp.MustCompile(`Could not find a registered machine named '(.+)'`)
+	reVersion         = regexp.MustCompile(`"(\d+)\.(\d+)\.(\d+)?(r\d+)?"`)
 )
 
 // Manage returns the Command to run VBoxManage/VBoxControl.
@@ -45,13 +46,21 @@ func Manage() Command {
 
 func lookupVBoxProgram(vbprog string) (string, error) {
 	if runtime.GOOS == osWindows {
-		if p1 := os.Getenv("VBOX_INSTALL_PATH"); p1 != "" {
-			vbprog = filepath.Join(p1, vbprog+".exe")
-		} else if p2 := os.Getenv("VBOX_MSI_INSTALL_PATH"); p2 != "" {
-			vbprog = filepath.Join(p2, vbprog+".exe")
-		} else {
-			vbprog = filepath.Join("C:\\", "Program Files", "Oracle", "VirtualBox", vbprog+".exe")
+		var installPath string
+		var progPath string
+		installPath = os.Getenv("VBOX_INSTALL_PATH")
+		if installPath == "" {
+			installPath = os.Getenv("VBOX_MSI_INSTALL_PATH")
 		}
+		if installPath != "" {
+			progPath = filepath.Join(installPath, vbprog+".exe")
+		} else {
+			progPath = filepath.Join("C:\\", "Program Files", "Oracle", "VirtualBox", vbprog+".exe")
+		}
+		if !isFileExists(progPath) {
+			return "", ErrCommandNotInstalled
+		}
+		return exec.LookPath(progPath)
 	}
 
 	return exec.LookPath(vbprog)

@@ -29,7 +29,8 @@ var (
 	// ErrMachineNotExist holds the error message when the machine does not exist.
 	ErrMachineNotExist = errors.New("machine does not exist")
 	// ErrCommandNotFound holds the error message when the VBoxManage commands was not found.
-	ErrCommandNotFound = errors.New("command not found")
+	ErrCommandNotFound     = errors.New("command not found")
+	ErrCommandNotInstalled = errors.New("virtualbox cli not installed")
 )
 
 type command struct {
@@ -39,8 +40,8 @@ type command struct {
 	guest   bool
 }
 
-func (vbcmd command) setOpts(opts ...option) Command {
-	var cmd Command = &vbcmd
+func (c command) setOpts(opts ...option) Command {
+	var cmd Command = &c
 	for _, opt := range opts {
 		opt(cmd)
 	}
@@ -55,30 +56,30 @@ func sudo(sudo bool) option {
 	}
 }
 
-func (vbcmd command) isGuest() bool {
-	return vbcmd.guest
+func (c command) isGuest() bool {
+	return c.guest
 }
 
-func (vbcmd command) path() string {
-	return vbcmd.program
+func (c command) path() string {
+	return c.program
 }
 
-func (vbcmd command) prepare(args []string) *exec.Cmd {
-	program := vbcmd.program
+func (c command) prepare(args []string) *exec.Cmd {
+	program := c.program
 	argv := []string{}
-	Debug("Command: '%+v', runtime.GOOS: '%s'", vbcmd, runtime.GOOS)
-	if vbcmd.sudoer && vbcmd.sudo && runtime.GOOS != osWindows {
+	Debug("Command: '%+v', runtime.GOOS: '%s'", c, runtime.GOOS)
+	if c.sudoer && c.sudo && runtime.GOOS != osWindows {
 		program = "sudo"
-		argv = append(argv, vbcmd.program)
+		argv = append(argv, c.program)
 	}
 	argv = append(argv, args...)
 	Debug("executing: %v %v", program, argv)
 	return exec.Command(program, argv...) // #nosec
 }
 
-func (vbcmd command) run(args ...string) (string, string, error) {
-	defer vbcmd.setOpts(sudo(false))
-	cmd := vbcmd.prepare(args)
+func (c command) run(args ...string) (string, string, error) {
+	defer c.setOpts(sudo(false))
+	cmd := c.prepare(args)
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &stdout
