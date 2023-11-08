@@ -1,4 +1,4 @@
-module github.com/kokororin/go-virtualbox
+module github.com/sh-agilebot/go-virtualbox
 
 go 1.19
 

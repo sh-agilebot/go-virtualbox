@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kokororin/go-virtualbox"
+	"github.com/sh-agilebot/go-virtualbox"
 )
 
 var (

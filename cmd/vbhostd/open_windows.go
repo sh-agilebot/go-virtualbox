@@ -3,7 +3,7 @@ package main
 import (
 	"os/exec"
 
-	"github.com/kokororin/go-virtualbox"
+	"github.com/sh-agilebot/go-virtualbox"
 )
 
 func open(args ...string) *exec.Cmd {
