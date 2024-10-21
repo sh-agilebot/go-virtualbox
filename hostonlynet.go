@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	"os/exec"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -53,14 +52,14 @@ func (n *HostonlyNet) Config() error {
 	//We need a windowsfix because of https://www.virtualbox.org/ticket/8796
 	if runtime.GOOS == osWindows {
 		if n.IPv4.IP != nil && n.IPv4.Mask != nil {
-			cmd := exec.Command("netsh", "interface", "ip", "set", "address", fmt.Sprintf("name=\"%s\"", n.Name), "static", n.IPv4.IP.String(), net.IP(n.IPv4.Mask).String()) // #nosec
+			cmd := newExecCmd("netsh", "interface", "ip", "set", "address", fmt.Sprintf("name=\"%s\"", n.Name), "static", n.IPv4.IP.String(), net.IP(n.IPv4.Mask).String()) // #nosec
 			if err := cmd.Run(); err != nil {
 				return err
 			}
 		}
 		if n.IPv6.IP != nil && n.IPv6.Mask != nil {
 			prefixLen, _ := n.IPv6.Mask.Size()
-			cmd := exec.Command("netsh", "interface", "ipv6", "add", "address", n.Name, fmt.Sprintf("%s/%d", n.IPv6.IP.String(), prefixLen)) // #nosec
+			cmd := newExecCmd("netsh", "interface", "ipv6", "add", "address", n.Name, fmt.Sprintf("%s/%d", n.IPv6.IP.String(), prefixLen)) // #nosec
 			if err := cmd.Run(); err != nil {
 				return err
 			}

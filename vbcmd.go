@@ -66,7 +66,7 @@ func (c command) path() string {
 
 func (c command) prepare(args []string) *exec.Cmd {
 	program := c.program
-	argv := []string{}
+	var argv []string
 	Debug("Command: '%+v', runtime.GOOS: '%s'", c, runtime.GOOS)
 	if c.sudoer && c.sudo && runtime.GOOS != osWindows {
 		program = "sudo"
@@ -74,7 +74,7 @@ func (c command) prepare(args []string) *exec.Cmd {
 	}
 	argv = append(argv, args...)
 	Debug("executing: %v %v", program, argv)
-	return exec.Command(program, argv...) // #nosec
+	return newExecCmd(program, argv...) // #nosec
 }
 
 func (c command) run(args ...string) (string, string, error) {
@@ -86,7 +86,8 @@ func (c command) run(args ...string) (string, string, error) {
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
-		if ee, ok := err.(*exec.Error); ok && ee == exec.ErrNotFound {
+		var ee *exec.Error
+		if errors.As(err, &ee) && errors.Is(ee, exec.ErrNotFound) {
 			err = ErrCommandNotFound
 		}
 		Debug("stderr: %v", stderr.String())

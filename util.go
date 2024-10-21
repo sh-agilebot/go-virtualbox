@@ -4,6 +4,7 @@ import (
 	"context"
 	"net"
 	"os"
+	"os/exec"
 )
 
 // ParseIPv4Mask parses IPv4 netmask written in IP form (e.g. 255.255.255.0).
@@ -34,4 +35,11 @@ func isFileExists(name string) bool {
 		return !fi.IsDir()
 	}
 	return false
+}
+
+// newExecCmd is a wrapper to exec.Command
+func newExecCmd(name string, arg ...string) *exec.Cmd {
+	cmd := exec.Command(name, arg...)
+	cmd.SysProcAttr = sysProcAttr
+	return cmd
 }
